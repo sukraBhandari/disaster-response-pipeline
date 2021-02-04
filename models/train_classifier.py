@@ -3,23 +3,19 @@ import re
 import nltk
 
 import pandas as pd
-import numpy as np
-
 from sqlalchemy import create_engine
 
 from sklearn.externals import joblib
 from sklearn.multioutput import MultiOutputClassifier
-
 from sklearn.ensemble import AdaBoostClassifier
-from sklearn.tree import DecisionTreeClassifier
-
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.feature_extraction.text import  CountVectorizer, TfidfVectorizer, TfidfTransformer
-from sklearn.metrics import classification_report, fbeta_score
+from sklearn.feature_extraction.text import (CountVectorizer,
+                                             TfidfTransformer)
+from sklearn.metrics import classification_report
+
 
 from nltk.tokenize import word_tokenize
-from nltk.tokenize import sent_tokenize
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
@@ -27,6 +23,7 @@ from nltk.corpus import stopwords
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
+
 
 def load_data(database_filepath):
     '''
@@ -46,7 +43,7 @@ def load_data(database_filepath):
     df = pd.read_sql("SELECT * FROM disaster_messages_clean", engine)
     
     X = df.message
-    Y = df.iloc[:,4:]
+    Y = df.iloc[:, 4:]
     category_names = Y.columns.tolist()
     
     return X, Y, category_names
@@ -98,33 +95,26 @@ def build_model():
     
     Returns
     -------
-    model :  
-    
+    model : classifier
+    '''
    
     parameters = {
-    'clf__estimator__n_estimators': [50, 100, 300],
-    'clf__estimator__learning_rate':[0.5,1.0, 2.0],
-    'vect__max_df': [0.9, 1.0],
-    'vect__ngram_range': [(1,1), (1,2)],
-    'tfidf__use_idf': [True, False]
-    }
-    '''
-    parameters = {
-    'clf__estimator__n_estimators': [200,300],
-    'clf__estimator__learning_rate':[0.5,1.0],
-    'vect__max_df': [1.0],
-    'vect__ngram_range': [(1,1)],
-    'tfidf__use_idf': [True, False]
-    }
+                'clf__estimator__n_estimators': [50, 100, 300],
+                'clf__estimator__learning_rate': [0.5, 1.0, 2.0],
+                'vect__max_df': [0.9, 1.0],
+                'vect__ngram_range': [(1, 1), (1, 2)],
+                'tfidf__use_idf': [True, False]
+                }
     ada_clf = AdaBoostClassifier()
     pipeline = Pipeline([
-        ('vect', CountVectorizer(tokenizer=tokenize)),
-        ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(ada_clf))
-        ])
+                        ('vect', CountVectorizer(tokenizer=tokenize)),
+                        ('tfidf', TfidfTransformer()),
+                        ('clf', MultiOutputClassifier(ada_clf))
+                        ])
     model = GridSearchCV(pipeline, param_grid=parameters, cv=2, verbose=10)
     return model
     
+
 def evaluate_model(model, X_test, Y_test, category_names):
     '''
     Evaluates the model and prints classification report
@@ -161,7 +151,9 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X,
+                                                            Y,
+                                                            test_size=0.2)
         
         print('Building model...')
         model = build_model()
