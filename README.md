@@ -22,7 +22,7 @@ This project is a part of the Data Science NanoDegree program. The goal of this 
 ## Dataset<a name="dataset"></a>
 
 The dataset used in this project is taken from [Figure Eight](https://appen.com/). It contains over 26000 real messages that were obtained during a real crisis. It consists of two files:
-1. message.csv - messaged received during the crisis
+1. message.csv - messages received during the crisis
 2. categories.cvs - categories of each message
        
 File Structure<a name="file"></a>
