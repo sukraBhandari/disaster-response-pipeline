@@ -35,18 +35,32 @@ def clean_data(df):
     '''
     # split categories and expand columns on each split value
     categories = df.categories.str.split(';', expand=True)    
+    
     # extract a list of new column names for categories
     category_colnames = categories.iloc[0].str[:-2]    
+    
     # rename the columns names
     categories.columns = category_colnames    
+    
     # Iterate through the category columns in df
     # keep only the last character of each string (the 1 or 0).
     for column in categories:
         categories[column] = categories[column].str[-1].astype(int)
+
+    # clean 'related' column which contains three value 0,1 and 2.
+    # each column must have binary value
+    # replace 2 with 1
+    categories.related.replace(2, 1, inplace=True)    
+    
+    # drop column 'child_alone', all values are 0
+    categories.drop(['child_alone'], axis=1, inplace=True)
+    
     # Drop the categories column from the df dataframe
     df.drop(['categories'], axis=1, inplace=True)    
+    
     # concatenate the original dataframe with the new `categories` dataframe
     df = pd.concat([df, categories], axis=1)    
+    
     # drop duplicates
     df.drop_duplicates(inplace=True)    
     return df
